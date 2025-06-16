@@ -36,6 +36,7 @@ echo "Alvin, Shell Navigation, submitted" >> submission_reminder_$NAME/assets/su
 echo "Theodora, Shell Basics, not submitted" >> submission_reminder_$NAME/assets/submissions.txt
 echo "Franck, Shell Navigation, not submitted" >> submission_reminder_$NAME/assets/submissions.txt
 echo "Ayobamidele, Git, not submitted" >> submission_reminder_$NAME/assets/submissions.txt
+
 #now we are implementing the startup.script. This script just starts up the reminder app when executed
 cat <<EOF > submission_reminder_$NAME/startup.sh
 #!/bin/bash
