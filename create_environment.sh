@@ -17,10 +17,73 @@ mkdir submission_reminder_$NAME/modules
 mkdir submission_reminder_$NAME/assets
 mkdir submission_reminder_$NAME/config
 
-cp reminder.sh submission_reminder_$NAME/app/
-cp functions.sh submission_reminder_$NAME/modules/
-cp submissions.txt submission_reminder_$NAME/assets
-cp config.env submission_reminder_$NAME/config
+#Coping files is actually not the best way of doing this, since it copies files that are locally located which will not be the case in someone's laptop! 
+#Instead, lets create this file directly inside this script!
+
+cd submission_reminder_$NAME
+
+#Populating "reminder.sh"
+
+cat << 'EOF_REMINDER' > app/reminder.sh
+#!/usr/bin/bash
+echo "This is the reminder app running"
+# Source environment variables and helper functions
+source ./config/config.env
+source ./modules/functions.sh
+# Path to the submissions file
+submissions_file="./assets/submissions.txt"
+# Print remaining time and run the reminder function
+echo "Assignment: $ASSIGNMENT"
+echo "Days remaining to submit: $DAYS_REMAINING days"
+echo "--------------------------------------------"
+check_submissions $submissions_file
+EOF_REMINDER
+
+#Populating "functions.sh"
+
+cat << 'EQF_FUNCTIONS' > modules/functions.sh
+#!/usr/bin/bash
+# Function to read submissions file and output students who have not submitted
+function check_submissions {
+    local submissions_file=$1
+    echo "Checking submissions in $submissions_file"
+
+    # Skip the header and iterate through the lines
+    while IFS=, read -r student assignment status; do
+        # Remove leading and trailing whitespace
+        student=$(echo "$student" | xargs)
+        assignment=$(echo "$assignment" | xargs)
+        status=$(echo "$status" | xargs)
+
+        # Check if assignment matches and status is 'not submitted'
+        if [[ "$assignment" == "$ASSIGNMENT" && "$status" == "not submitted" ]]; then
+            echo "Reminder: $student has not submitted the $ASSIGNMENT assignment!"
+        fi
+    done < <(tail -n +2 "$submissions_file") # Skip the header
+}
+
+EQF_FUNCTIONS
+
+
+#Populating "submissions.txt"
+
+cat << EQF_SUBMISSIONS > assets/submissions.txt
+student, assignment, submission status
+Chinemerem, Shell Navigation, not submitted
+Chiagoziem, Git, submitted
+Divine, Shell Navigation, not submitted
+Anissa, Shell Basics, submitted
+EQF_SUBMISSIONS
+
+#Populating "config.env"
+
+cat << EQF_CONFIG > config/config.env
+# This is the config file
+ASSIGNMENT="Shell Navigation"
+DAYS_REMAINING=2
+EQF_CONFIG
+
+cd ..
 
 #Here I am appending 10+ more students records to submissions.txt so that we can test the application better! 
 echo "Menes, Git, submitted" >> submission_reminder_$NAME/assets/submissions.txt
